@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COALITION · call Congress trades on chain · $COALITION</title>
+<meta name="description" content="Coalition tracks the stock trades members of Congress report under the STOCK Act and lets you call them: copy or fade each filing, get scored, earn from the weekly pool. $COALITION. Not affiliated with or endorsed by any member of Congress.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="icon" id="fav" href="data:,">
+<style>
+:root{
+  --k:#000; --r:#ff1a1a; --g:#1aff5a; --y:#ffff1a; --b:#1a1aff; --m:#ff1aff; --c:#1affff; --w:#ffffff;
+  --dim:#9a9a9a; --line:#ffffff; --pnl:#050505;
+  --px:"Press Start 2P",ui-monospace,monospace; --tt:"VT323",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{margin:0;overflow-x:hidden}
+body{background:var(--k);color:var(--w);font:400 20px/1.2 var(--tt);-webkit-font-smoothing:none}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.y{color:var(--y)}.c{color:var(--c)}.r{color:var(--r)}.g{color:var(--g)}.m{color:var(--m)}.dim{color:var(--dim)}
+/* layout */
+.side{position:fixed;left:0;top:0;bottom:0;width:150px;border-right:1px solid #333;display:flex;flex-direction:column;padding:8px;z-index:30;background:#000}
+.lg{display:flex;align-items:center;gap:6px;font:400 11px var(--px);margin:2px 0 16px}
+.lg canvas{width:34px;height:21px;image-rendering:pixelated}
+.pg{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;margin-bottom:8px;font:400 20px var(--tt);color:#000;transition:transform .1s}
+.pg:hover{transform:translateX(3px)}
+.pg small{font:400 13px var(--tt);opacity:.8}
+.pg.on{outline:2px solid #fff;outline-offset:2px}
+.side .sp{flex:1}
+.side .na{font-size:15px;color:#bbb;line-height:1.15;border-bottom:1px solid #333;padding-bottom:10px;margin-bottom:10px}
+.side .ft{display:flex;align-items:center;gap:8px;font-size:15px}
+.side .ft a{margin-left:auto;width:32px;height:32px;border:1px solid #666;display:grid;place-items:center}
+main{margin-left:150px;min-width:0}
+.top{display:flex;align-items:center;gap:12px;padding:6px 12px;border-bottom:1px solid #222;position:sticky;top:0;background:#000;z-index:20}
+.srch{flex:1;max-width:280px;margin:0 auto;display:flex;align-items:center;gap:6px;border:1px solid #fff;padding:2px 8px}
+.srch input{border:0;outline:none;background:none;width:100%;font-size:19px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:2px solid var(--y);background:var(--y);color:#000;padding:4px 12px;font:400 19px var(--tt);white-space:nowrap}
+.btn:hover{background:#000;color:var(--y)}
+.btn.o{background:#000;color:#fff;border-color:#fff}
+.btn.o:hover{background:#fff;color:#000}
+.btn.c{background:var(--c);border-color:var(--c)}
+.btn.m{background:var(--m);border-color:var(--m)}
+.tick{border:1px solid var(--g);color:var(--g);padding:2px 10px;font-size:19px;white-space:nowrap}.tick:hover{background:var(--g);color:#000}
+.hchip{display:inline-block;background:var(--g);color:#000;font:400 12px var(--px);padding:6px 10px;margin-bottom:16px;box-shadow:3px 3px 0 var(--m)}
+.xb{width:34px;height:34px;border:1px solid #fff;display:grid;place-items:center}
+/* skyline + banner */
+#sky{display:block;width:100%;height:56px;image-rendering:pixelated}
+.band{display:flex;justify-content:space-between;gap:12px;background:var(--b);padding:3px 12px;font-size:18px;flex-wrap:wrap}
+.band b{color:var(--y);font-weight:400}
+/* hero */
+.hero{text-align:center;padding:30px 16px 24px}
+h1{margin:0;font:400 clamp(22px,4vw,46px)/1.2 var(--px);letter-spacing:.02em;text-shadow:3px 3px 0 var(--b)}
+.hero p{max-width:560px;margin:16px auto 20px;color:var(--c);font-size:21px}
+.hero .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.ca{display:inline-flex;margin-top:14px;border:1px solid #666;font-size:18px}
+.ca span{background:#fff;color:#000;padding:2px 8px}
+.ca b{font-weight:400;padding:2px 10px}
+.ca button{border:0;border-left:1px solid #666;background:none;padding:0 10px}
+/* panels */
+.wrapp{padding:0 12px 12px}
+.grid{display:grid;gap:10px}
+.pnl{border:1px solid var(--line);background:var(--pnl);display:flex;flex-direction:column;min-width:0}
+.pnl .bd{flex:1;padding:10px;min-width:0}
+.pnl .fb{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding:4px 10px}
+.pnl .fb .code{font-size:17px;border:1px solid currentColor;padding:0 5px}
+.pnl .fb .t{font-size:20px}
+.pnl .fb a,.pnl .fb button.lk{margin-left:auto;font-size:18px;border:0;background:none;padding:0}
+.pnl .fb a:hover,.pnl .fb button.lk:hover{color:var(--y)}
+.g1{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+.g2{grid-template-columns:repeat(3,minmax(0,1fr))}
+.lbl{font-size:18px}
+.big{font:400 26px var(--px);margin:8px 0}
+.bars{display:flex;align-items:flex-end;gap:3px;height:70px;margin-top:6px}
+.bars i{flex:1;background:var(--c);min-height:2px}
+/* mini member strip */
+.strip{display:flex;gap:6px;overflow:hidden;position:relative}
+.strip .tr{display:flex;gap:6px;animation:mq 50s linear infinite;width:max-content}
+.strip:hover .tr{animation-play-state:paused}
+@keyframes mq{to{transform:translateX(-50%)}}
+.mini{width:120px;border:1px solid #555;flex:none}
+.mini .ph{height:150px;position:relative;overflow:hidden;background:#111}
+.mini img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.mini .nm{font-size:16px;padding:2px 4px;border-top:1px solid #555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini .tk{font-size:15px;padding:0 4px 3px;white-space:nowrap;overflow:hidden}
+/* filing rows small */
+.fr{display:flex;align-items:center;gap:8px;border:1px solid #444;padding:4px 6px;margin-bottom:6px;font-size:18px}
+.fr .av{width:30px;height:30px;flex:none;overflow:hidden;background:#111}
+.fr .av img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.fr .tx{flex:1;min-width:0;line-height:1}
+.fr .tx b{font-weight:400;display:block}
+.fr .rt{text-align:right;white-space:nowrap}
+/* basket mini */
+.bk .row{display:grid;grid-template-columns:60px minmax(0,1fr) 44px;align-items:center;gap:8px;margin:5px 0;font-size:18px}
+.bk .row i{display:block;height:13px;background:var(--y)}
+.kv{font-size:17px;line-height:1.2}
+.kv div{display:grid;grid-template-columns:110px minmax(0,1fr)}
+.kv span{color:var(--c)}
+/* section headers */
+.sec{padding:26px 12px 10px}
+.sh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.sh h2{margin:0;font:400 16px var(--px);color:var(--y)}
+.sh .code{font-size:17px;border:1px solid currentColor;padding:0 5px}
+.sh .sp{flex:1}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tabs button{border:1px solid #fff;background:#000;padding:1px 8px;font-size:18px}
+.tabs button.on{background:var(--c);color:#000;border-color:var(--c)}
+.sub{font-size:18px;color:#bbb;margin-bottom:10px}
+/* member cards */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.mc{border:1px solid #fff;background:#000;cursor:pointer;position:relative}
+.mc:hover{outline:2px solid var(--y)}
+.mc .ph{aspect-ratio:1/1.08;position:relative;overflow:hidden;background:#111}
+.mc img{width:100%;height:100%;object-fit:cover;object-position:50% 18%;display:block}
+.mc .pt{position:absolute;left:6px;top:6px;font-size:17px;padding:0 5px;color:#fff}
+.mc .dd{position:absolute;right:6px;top:6px;font-size:17px;padding:0 5px;background:#000;border:1px solid #fff}
+.mc .ch{position:absolute;left:6px;bottom:6px;font-size:16px;padding:0 5px;background:#000;border:1px solid #fff}
+.mc .star{position:absolute;right:6px;bottom:6px;width:26px;height:26px;border:1px solid #fff;background:#000;display:grid;place-items:center;font-size:18px}
+.mc .star.on{background:var(--y);color:#000;border-color:var(--y)}
+.mc .in{padding:6px 8px;font-size:18px;line-height:1.05}
+.mc .in b{font-weight:400;display:block;font-size:19px}
+.mc .in .last{margin-top:4px}
+.mc .in .amt{font-size:21px;margin-top:2px}
+.init{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--px);color:#000}
+/* filings table */
+.fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.fbar select{background:#000;border:1px solid #fff;padding:1px 6px;font-size:18px}
+.tbl{border:1px solid #fff}
+.trw{display:grid;grid-template-columns:minmax(150px,1.3fr) 70px minmax(120px,1.4fr) 58px 98px 70px 70px 132px;gap:8px;align-items:center;padding:4px 8px;border-bottom:1px solid #333;font-size:18px}
+.trw:last-child{border-bottom:0}
+.trw.h{background:var(--b);font-size:17px}
+.trw .mem{display:flex;align-items:center;gap:6px;min-width:0}
+.trw .mem .av{width:26px;height:26px;flex:none;overflow:hidden;background:#111}
+.trw .mem .av img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.trw .mem span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trw .as{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ccc}
+.side-b{color:var(--g)}.side-s{color:var(--r)}
+.cb{display:flex;gap:4px}
+.cb button{border:1px solid var(--g);background:#000;color:var(--g);padding:0 6px;font-size:17px}
+.cb button.f{border-color:var(--m);color:var(--m)}
+.cb button:hover{background:var(--g);color:#000}.cb button.f:hover{background:var(--m);color:#000}
+.cb button.done{background:#333;color:#fff;border-color:#333}
+.more{display:block;width:100%;border:1px solid #fff;border-top:0;background:#000;padding:3px;font-size:18px}
+.more:hover{background:#fff;color:#000}
+/* top filers */
+.tf .hdr{padding:4px 8px;font-size:17px;display:flex;gap:8px;flex-wrap:wrap}
+.tf .bd{display:flex;gap:10px;align-items:flex-end}
+.tf .av{width:56px;height:56px;overflow:hidden;background:#111;border:1px solid #fff;flex:none;position:relative}
+.tf .av img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.tf b{font-weight:400;font-size:20px;display:block}
+/* baskets */
+.bg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.bas .hd2{padding:6px 10px;color:#000;font-size:19px;display:flex;justify-content:space-between}
+.bas .row{display:grid;grid-template-columns:64px minmax(0,1fr) 46px;gap:8px;align-items:center;margin:6px 0;font-size:18px}
+.bas .row i{display:block;height:12px}
+.bas .cbx{display:flex;gap:6px;margin-top:8px}
+.bas .cbx button{flex:1;border:1px solid #fff;background:#000;padding:2px;font-size:18px}
+.bas .cbx button:hover{background:#fff;color:#000}
+/* calls board */
+.cl{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:10px}
+.lbt .r2{display:grid;grid-template-columns:34px minmax(0,1fr) 70px 70px;gap:8px;padding:3px 10px;border-bottom:1px solid #333;font-size:18px}
+.lbt .r2.h{background:var(--m);color:#000}
+.lbt .r2.me{background:#002a2a}
+.mine li{list-style:none;border:1px solid #444;padding:5px 8px;margin-bottom:6px;font-size:18px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.mine ul{margin:0;padding:0;max-height:280px;overflow:auto}
+.how{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.how .pnl .bd b{display:block;font:400 12px var(--px);margin-bottom:8px}
+/* token */
+.tok{border:2px solid var(--y);padding:14px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px;background:repeating-linear-gradient(0deg,#000 0 3px,#0a0a00 3px 4px)}
+.tok h3{margin:0 0 8px;font:400 22px var(--px);color:var(--y)}
+/* modal */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;padding:12px}
+.modal.on{display:flex}
+.mb{width:min(560px,100%);border:2px solid var(--y);background:#000;max-height:calc(100vh - 24px);overflow:auto}
+.mb .mh{background:var(--y);color:#000;padding:4px 10px;display:flex;font-size:20px}
+.mb .mh button{margin-left:auto;border:0;background:#000;color:var(--y);padding:0 8px}
+.mb .mbd{padding:12px}
+.opt{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+.opt button{border:1px solid #fff;background:#000;padding:2px 10px;font-size:19px}
+.opt button.on{background:var(--c);color:#000;border-color:var(--c)}
+.opt.dir button.on[data-v=copy]{background:var(--g);border-color:var(--g)}
+.opt.dir button.on[data-v=fade]{background:var(--m);border-color:var(--m)}
+footer{border-top:1px solid #333;padding:12px;font-size:17px;color:#aaa}
+footer a{color:var(--c)}
+#toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,14px);opacity:0;z-index:90;background:var(--y);color:#000;padding:6px 14px;font-size:20px;transition:.2s;pointer-events:none;max-width:calc(100% - 24px);text-align:center;border:2px solid #000;outline:2px solid var(--y)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.blink{animation:bl 1s steps(2) infinite}@keyframes bl{50%{opacity:0}}
+@media (max-width:1100px){.g2,.bg3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.how{grid-template-columns:repeat(2,minmax(0,1fr))}.trw{grid-template-columns:minmax(130px,1.3fr) 60px minmax(0,1fr) 54px 90px 120px}.trw .c-tr,.trw .c-ds{display:none}}
+@media (max-width:800px){.side{position:sticky;top:0;width:auto;bottom:auto;flex-direction:row;align-items:center;gap:6px;overflow-x:auto;padding:6px;border-right:0;border-bottom:1px solid #333}.lg{margin:0 6px 0 0;flex:none}.pg{margin:0;flex:none;padding:3px 7px;font-size:18px}.pg small{display:none}.side .sp,.side .na,.side .ft{display:none}main{margin-left:0}.top{position:static}.g1,.g2,.bg3,.cl,.tok{grid-template-columns:minmax(0,1fr)}.trw{grid-template-columns:minmax(0,1.3fr) 50px 80px 112px}.trw .c-as,.trw .c-amt,.trw .c-tr,.trw .c-ds{display:none}.mg{grid-template-columns:repeat(2,minmax(0,1fr))}.how{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:420px){.top .srch{display:none}.top{justify-content:flex-end}.band{font-size:16px}}
+</style>
+</head>
+<body>
+<aside class="side" id="side">
+  <a class="lg" href="#p100"><canvas id="logoC" width="17" height="11"></canvas><span>COALITION<br><span style="color:var(--y);font-size:9px">$COALITION</span></span></a>
+  <a class="pg on" href="#p100" style="background:var(--r);color:#fff">Board<small>100</small></a>
+  <a class="pg" href="#p200" style="background:var(--y)">Members<small>200</small></a>
+  <a class="pg" href="#p300" style="background:var(--c)">Baskets<small>300</small></a>
+  <a class="pg" href="#p400" style="background:var(--w)">Filings<small>400</small></a>
+  <a class="pg" href="#p500" style="background:var(--b);color:#fff">Docs<small>500</small></a>
+  <a class="pg" href="#p600" style="background:var(--m)">Callers<small>600</small></a>
+  <a class="pg" href="#p700" style="background:var(--g);font-size:17px">$COALITION<small>700</small></a>
+  <span class="sp"></span>
+  <div class="na">Not affiliated with or endorsed by any member of Congress.</div>
+  <div class="ft"><span>$COALITION<br><span class="dim">On Solana</span></span><a id="xSide" href="#" aria-label="X">𝕏</a></div>
+</aside>
+
+<main>
+<div class="top"><label class="srch">⌕<input id="gq" placeholder="Search members or tickers" aria-label="Search members or tickers"></label><a class="tick" href="#p700">$COALITION</a><a class="btn" href="#p400">Open the app</a><a class="xb" id="xTop" href="#" aria-label="X">𝕏</a></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="band"><span><b>P100</b> COALITION · <span style="color:var(--y)">$COALITION</span></span><span id="bandMid">— lit windows</span><span id="bandR">Newest filing —</span></div>
+
+<section id="p100">
+<div class="hero">
+  <div class="hchip">$COALITION · ON SOLANA</div>
+  <h1>CALL CONGRESS.</h1>
+  <p>Track the stock trades members of Congress report under the STOCK Act. Copy them or fade them, get scored, and earn from the weekly pool. Not affiliated with or endorsed by any member of Congress.</p>
+  <div class="cta"><a class="btn" href="#p400">Call a filing</a><a class="btn o" href="#p300">See the Pelosi basket</a></div>
+  <div><span class="ca"><span>CA</span><b id="caT">Not yet · posted on X at launch</b><button type="button" id="caC">copy</button></span></div>
+</div>
+<div class="wrapp">
+  <div class="grid g1">
+    <div class="pnl"><div class="bd" style="padding:6px"><div class="strip"><div class="tr" id="strip"></div></div></div><div class="fb y"><span class="code">P200</span><span class="t">Members</span><a href="#p200">Open →</a></div></div>
+    <div class="pnl"><div class="bd" id="latest"></div><div class="fb"><span class="code">P400</span><span class="t">Filings</span><a href="#p400">Open →</a></div></div>
+  </div>
+  <div class="grid g2" style="margin-top:10px">
+    <div class="pnl"><div class="bd"><div class="lbl c">Trade lines on this board</div><div class="big" id="cnt">0</div><div class="bars" id="bars"></div><div class="lbl dim" style="margin-top:4px">Lines per filing date, Sep–Oct 2026</div></div><div class="fb r"><span class="code">P110</span><span class="t">Counts</span><a href="#p400">Open →</a></div></div>
+    <div class="pnl"><div class="bd bk" id="pelMini"></div><div class="fb c"><span class="code">P300</span><span class="t">Pelosi basket</span><a href="#p300">Open →</a></div></div>
+    <div class="pnl"><div class="bd"><div class="lbl c">What a keeper posts on chain</div><div class="kv" id="kv"></div></div><div class="fb" style="color:#6b6bff"><span class="code">P500</span><span class="t">Docs</span><a href="#p500">Open →</a></div></div>
+  </div>
+</div>
+</section>
+
+<section class="sec" id="p200">
+  <div class="sh"><h2>Members</h2><span class="code y">P200</span><div class="tabs" id="mTabs"><button type="button" class="on" data-s="known">Best known</button><button type="button" data-s="lines">Most traded</button><button type="button" data-s="newest">Newest</button><button type="button" data-s="watch">★ Watchlist</button></div><span class="sp"></span><div class="tabs" id="chTabs"><button type="button" class="on" data-c="all">All</button><button type="button" data-c="H">House</button><button type="button" data-c="S">Senate</button></div></div>
+  <div class="sub"><span id="mCount">—</span> members on this board reported trades in Sep–Oct 2026. Names like $PELOSI are labels, not tokens. Official portraits, public domain.</div>
+  <div class="grid" style="grid-template-columns:minmax(0,1fr) 300px" id="mWrap">
+    <div class="mg" id="mg"></div>
+    <div><div class="sh"><h2 style="font-size:13px">Top filers</h2></div><div id="tf" class="grid"></div></div>
+  </div>
+</section>
+
+<section class="sec" id="p300">
+  <div class="sh"><h2>Baskets</h2><span class="code c">P300</span></div>
+  <div class="sub">Baskets follow, or fade, what members report. Weights come from the filings below. Baskets go on chain at launch.</div>
+  <div class="bg3" id="baskets"></div>
+</section>
+
+<section class="sec" id="p400">
+  <div class="sh"><h2>Filings</h2><span class="code">P400</span><span class="sp"></span><span class="lbl dim">Tap <span class="g">COPY</span> or <span class="m">FADE</span> to call a trade</span></div>
+  <div class="fbar"><div class="tabs" id="fSide"><button type="button" class="on" data-v="all">All</button><button type="button" data-v="B">Bought</button><button type="button" data-v="S">Sold</button></div><select id="fMem" aria-label="Member"><option value="">All members</option></select><select id="fRange" aria-label="Amount"><option value="0">Any size</option><option value="2">$15K+</option><option value="3">$50K+</option><option value="5">$250K+</option></select><label class="srch" style="margin:0;max-width:200px">⌕<input id="fq" placeholder="ticker" aria-label="Ticker search"></label></div>
+  <div class="tbl" id="tbl"></div>
+  <button type="button" class="more" id="fMore">More lines ↓</button>
+  <div class="sub" style="margin-top:8px">Amounts are the ranges members report, not exact values. Data is from public Periodic Transaction Reports as compiled by <a class="c" href="https://www.tradewithcongress.org/trades" target="_blank" rel="noopener noreferrer">Trade With Congress</a>, <a class="c" href="https://tryglasshouse.ai/research/congressional-trading-weekly-2026-10-11" target="_blank" rel="noopener noreferrer">Glasshouse</a> and <a class="c" href="https://pro.stockalarm.io/blog/nancy-pelosi-stock-tracker" target="_blank" rel="noopener noreferrer">Stock Alarm</a>. Verify every line at the <a class="c" href="https://disclosures-clerk.house.gov/FinancialDisclosure" target="_blank" rel="noopener noreferrer">House Clerk</a> or <a class="c" href="https://efdsearch.senate.gov/search/" target="_blank" rel="noopener noreferrer">Senate eFD</a>.</div>
+</section>
+
+<section class="sec" id="p500">
+  <div class="sh"><h2>Docs</h2><span class="code" style="color:#6b6bff">P500</span></div>
+  <div class="how">
+    <div class="pnl"><div class="bd"><b class="y">1 READ</b>A keeper reads every new Periodic Transaction Report from the House Clerk and Senate eFD, including scanned paper filings.</div></div>
+    <div class="pnl"><div class="bd"><b class="c">2 POST</b>Each trade line is posted on Solana with the doc id and a SHA-256 hash of the PDF, so anyone can check it against the source.</div></div>
+    <div class="pnl"><div class="bd"><b class="g">3 CALL</b>Callers copy or fade a line, pick a horizon (7, 30 or 90 days) and conviction. Calls lock at the filing's posted time.</div></div>
+    <div class="pnl"><div class="bd"><b class="m">4 SETTLE</b>At the horizon the call settles against an on-chain price oracle. Points stack weekly; top callers split the pool.</div></div>
+  </div>
+  <div class="pnl" style="margin-top:10px"><div class="bd"><div class="lbl c">Line record (example, from Kevin Hern's Oct 13 report)</div><pre class="kv" id="kv2" style="margin:6px 0 0;font:inherit;white-space:pre-wrap"></pre></div><div class="fb"><span class="code">P510</span><span class="t">Schema</span><span class="dim" style="margin-left:auto">keeper goes live at launch</span></div></div>
+</section>
+
+<section class="sec" id="p600">
+  <div class="sh"><h2>Callers</h2><span class="code m">P600</span></div>
+  <div class="sub">Like a call-out board, but for Congress. Copy = you think the member's trade works. Fade = you think it doesn't. Points = move × horizon × conviction.</div>
+  <div class="cl">
+    <div class="pnl lbt"><div class="r2 h"><span>#</span><span>caller</span><span>calls</span><span>points</span></div><div id="lb"></div><div class="fb m"><span class="code">P610</span><span class="t">Week 1 · sample callers + you</span></div></div>
+    <div class="pnl"><div class="bd mine"><div class="lbl y">My calls (saved on this device)</div><ul id="myCalls"></ul></div><div class="fb"><span class="code">P620</span><span class="t" id="myN">0 calls</span><button type="button" class="lk" id="clrCalls">clear</button></div></div>
+  </div>
+</section>
+
+<section class="sec" id="p700" style="padding-bottom:30px">
+  <div class="tok">
+    <div><h3>$COALITION</h3><div style="font-size:20px">The Coalition token. Creator rewards from $COALITION are planned to fund the weekly pool for the best callers and the keeper that posts filings on chain.</div>
+      <div style="margin-top:10px"><span class="ca" style="margin:0"><span>CA</span><b id="caT2">Not yet · posted on X at launch</b><button type="button" id="caC2">copy</button></span></div>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap"><a class="btn" id="buyA" href="#">Buy $COALITION</a><a class="btn o" id="xA" href="#">Follow on X</a></div></div>
+    <div class="kv" style="font-size:19px"><div><span>chain</span>Solana · pump.fun</div><div><span>pool</span>weekly, top callers</div><div><span>data</span>House Clerk + Senate eFD</div><div><span>calls</span>free, points only</div><div><span>status</span><span class="y blink" style="color:var(--y)">pre-launch</span></div></div>
+  </div>
+</section>
+<footer>COALITION · $COALITION · <a id="xFoot" href="#">X ↗</a><br>Coalition is an independent project. It is not affiliated with, endorsed by, or speaking for any member of Congress, the U.S. House or Senate. Member names, $NAME labels and official portraits are used to identify public STOCK Act disclosures only; labels are not tokens. Trade data is public record compiled by third-party trackers and may contain errors; verify at the House Clerk and Senate eFD. Callers, points and the pool are previews until launch. Nothing here is financial advice.</footer>
+</main>
+
+<div class="modal" id="cm"><div class="mb"><div class="mh"><span id="cmT">Call</span><button type="button" data-close>✕</button></div><div class="mbd">
+  <div id="cmLine" style="font-size:20px;margin-bottom:10px"></div>
+  <div class="lbl dim">Your call</div><div class="opt dir" id="cDir"><button type="button" data-v="copy">COPY · it works</button><button type="button" data-v="fade">FADE · it doesn't</button></div>
+  <div class="lbl dim">Horizon</div><div class="opt" id="cHz"><button type="button" data-v="7">7 days ×1</button><button type="button" data-v="30" class="on">30 days ×1.5</button><button type="button" data-v="90">90 days ×2</button></div>
+  <div class="lbl dim">Conviction</div><div class="opt" id="cCv"><button type="button" data-v="1">×1</button><button type="button" data-v="2" class="on">×2</button><button type="button" data-v="3">×3</button></div>
+  <div style="font-size:18px;color:#bbb;border:1px dashed #666;padding:6px 8px" id="cmPrev"></div>
+  <div style="display:flex;gap:10px;margin-top:12px"><button class="btn" type="button" id="cmGo">Lock call</button><button class="btn o" type="button" data-close>Cancel</button></div>
+  <div style="font-size:16px;color:#888;margin-top:8px">Preview: calls are saved on this device. Scoring against the on-chain price oracle starts at launch.</div>
+</div></div></div>
+<div id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+/* ================= CONFIG ================= */
+var CONFIG={xUrl:'https://x.com/CoalitionDotFun',xHandle:'@CoalitionDotFun',ca:'',buyUrl:''};
+var PHOTO=function(id){return 'https://unitedstates.github.io/images/congress/450x550/'+id+'.jpg'};
+var PHOTO2=function(id){return 'https://bioguide.congress.gov/bioguide/photo/'+id[0]+'/'+id+'.jpg'};
+/* ========================================== */
+function $(s){return document.querySelector(s)}
+function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
+var tt;function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},2800)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var LS={get:function(k,d){try{var v=localStorage.getItem('coalition.'+k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){try{localStorage.setItem('coalition.'+k,JSON.stringify(v))}catch(e){}}};
+var REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function dfmt(s){if(!s)return '—';var p=s.split('-');return MON[+p[0]-1]+' '+(+p[1])}
+var RANGES=['$1K–$15K','$15K–$50K','$50K–$100K','$100K–$250K','$250K–$500K','$500K–$1M','$1M–$5M'];
+var RMID=[8e3,32e3,75e3,175e3,375e3,750e3,3e6];
+
+/* ================= MEMBERS (public record) ================= */
+// key: [bioguide, full name, label, chamber, state, party, known-rank]
+var MEM={
+ pelosi:['P000197','Nancy Pelosi','PELOSI','H','CA-11','D',1],gottheimer:['G000583','Josh Gottheimer','GOTTHEIMER','H','NJ-5','D',4],khanna:['K000389','Ro Khanna','KHANNA','H','CA-17','D',3],
+ salazar:['S000168','Maria Elvira Salazar','SALAZAR','H','FL-27','R',6],hern:['H001082','Kevin Hern','HERN','H','OK-1','R',7],boozman:['B001236','John Boozman','BOOZMAN','S','AR','R',5],
+ fetterman:['F000479','John Fetterman','FETTERMAN','S','PA','D',2],rulli:['R000619','Michael A. Rulli','RULLI','H','OH-6','R',16],jackson:['J000309','Jonathan L. Jackson','JACKSON','H','IL-1','D',10],
+ lee:['L000597','Laurel M. Lee','LEE','H','FL-15','R',14],taylor:['T000490','David J. Taylor','TAYLOR','H','OH-2','R',18],peters:['P000608','Scott H. Peters','PETERS','H','CA-50','D',13],
+ delbene:['D000617','Suzan K. DelBene','DELBENE','H','WA-1','D',12],allen:['A000372','Rick W. Allen','ALLEN','H','GA-12','R',15],kelly:['K000376','Mike Kelly','KELLY','H','PA-16','R',11],
+ meuser:['M001204','Daniel Meuser','MEUSER','H','PA-9','R',17],larsen:['L000560','Rick Larsen','LARSEN','H','WA-2','D',19],cisneros:['C001123','Gilbert Ray Cisneros, Jr.','CISNEROS','H','CA-31','D',20],
+ mcclain:['M001136','Lisa C. McClain','MCCLAIN','H','MI-9','R',9],doggett:['D000399','Lloyd Doggett','DOGGETT','H','TX-37','D',8],himes:['H001047','James A. Himes','HIMES','H','CT-4','D',21],
+ yakym:['Y000067','Rudy Yakym III','YAKYM','H','IN-2','R',22],fong:['F000480','Vince Fong','FONG','H','CA-20','R',23]};
+/* ================= FILINGS (public record, 2026) =================
+ [member, ticker, asset, side B/S/P(partial sale), traded MM-DD, disclosed MM-DD, range idx, src] */
+var F=[
+ ['boozman','APTV','Aptiv PLC','P','09-25','10-21',0,1],['boozman','MU','Micron Technology','P','09-24','10-21',0,1],['boozman','O','Realty Income','B','09-24','10-21',0,1],['boozman','CSCO','Cisco Systems','B','09-24','10-21',0,1],['boozman','TLH','iShares 10-20Y Treasury ETF','P','09-21','10-21',0,1],['boozman','IEF','iShares 7-10Y Treasury ETF','B','09-09','10-21',0,1],['boozman','VEA','Vanguard Developed Markets ETF','P','09-09','10-21',0,1],
+ ['yakym','T-BILL','Treasury Bill, 6-week','B','10-20','10-20',1,1],
+ ['himes','—','So Fine Foods LLC','B','09-29','10-20',2,1],
+ ['rulli','WSBC','WesBanco','S','10-16','10-19',0,1],['rulli','GOOG','Alphabet Class C','S','10-16','10-19',2,1],
+ ['jackson','GH','Guardant Health','B','09-28','10-19',1,1],['jackson','WMT','Walmart','S','09-28','10-19',2,1],['jackson','VSAT','ViaSat','S','09-28','10-19',2,1],['jackson','DDOG','Datadog','B','09-28','10-19',2,1],['jackson','EL','Estee Lauder','B','09-28','10-19',2,1],
+ ['lee','NOKBF','Nokia A shares','B','09-18','10-16',1,1],['lee','BAC','Bank of America','S','08-24','10-16',2,1],
+ ['taylor','PG','Procter & Gamble','S','10-12','10-15',0,1],['taylor','RPM','RPM International','B','10-09','10-15',0,1],['taylor','T','AT&T','B','10-09','10-15',0,1],['taylor','FITB','Fifth Third Bancorp','B','10-09','10-15',0,1],
+ ['peters','T-BILL','U.S. Treasury Bill','S','09-24','10-15',4,1],['peters','—','CA State GO bond','B','09-03','10-15',4,1],
+ ['delbene','—','Black Belt Energy Gas Dist. bond','B','09-18','10-14',4,1],['delbene','—','Triborough Bridge 4% bond','S','09-18','10-14',4,1],
+ ['allen','AZO','AutoZone','S','09-22','10-14',1,1],['allen','COST','Costco','S','09-18','10-14',0,1],
+ ['kelly','—','California Cmnty Choice 5% bond','B','09-16','10-14',2,1],
+ ['meuser','NVDA','NVIDIA','P','08-31','10-14',0,1],
+ ['hern','NEE','NextEra Energy','S','10-02','10-13',1,1],['hern','CVX','Chevron','P','09-23','10-13',1,1],['hern','CB','Chubb','S','09-23','10-13',0,1],['hern','DVN','Devon Energy','S','09-23','10-13',2,1],['hern','HD','Home Depot','S','09-23','10-13',0,1],['hern','LMT','Lockheed Martin','S','09-23','10-13',1,1],['hern','SBUX','Starbucks','S','09-23','10-13',1,1],['hern','UNH','UnitedHealth','S','09-23','10-13',1,1],['hern','ROK','Rockwell Automation','P','09-17','10-13',1,1],['hern','EMR','Emerson Electric','P','09-17','10-13',1,1],['hern','LIN','Linde','P','09-17','10-13',1,1],
+ ['larsen','WSM','Williams-Sonoma','B','10-08','10-12',0,1],['larsen','FDX','FedEx','S','10-08','10-12',0,1],['larsen','ADI','Analog Devices','B','10-08','10-12',0,1],['larsen','HD','Home Depot','S','10-08','10-12',0,1],
+ ['cisneros','BHE','Benchmark Electronics','B','10-01','10-12',1,1],['cisneros','MTSI','MACOM Technology','S','09-29','10-12',1,1],['cisneros','ITT','ITT Inc.','S','09-29','10-12',1,1],['cisneros','CYTK','Cytokinetics','B','09-29','10-12',0,1],['cisneros','YETI','YETI Holdings','B','09-29','10-12',0,1],
+ ['mcclain','MSFT','Microsoft','B','09-30','10-12',0,1],['mcclain','STX','Seagate Technology','P','09-30','10-12',1,1],['mcclain','CAT','Caterpillar','B','09-28','10-12',0,1],['mcclain','IBRX','ImmunityBio','B','09-30','10-12',0,1],
+ ['salazar','SNOW','Snowflake','B','09-04','10-07',1,2],['salazar','OKTA','Okta','B','09-04','10-07',0,2],['salazar','CVX','Chevron','B','09-02','10-07',0,2],['salazar','META','Meta Platforms','B','09-22','10-07',0,2],['salazar','CSCO','Cisco Systems','S','09-24','10-07',1,2],['salazar','UNH','UnitedHealth','S','09-24','10-07',0,2],['salazar','BA','Boeing','S','09-24','10-07',0,2],['salazar','MSFT','Microsoft','S','09-24','10-07',0,2],['salazar','GS','Goldman Sachs','S','09-24','10-07',0,2],['salazar','BRK.B','Berkshire Hathaway B','S','09-24','10-07',0,2],
+ ['khanna','BRK.B','Berkshire Hathaway B','B','09-02','10-07',0,2],
+ ['gottheimer','AMAT','Applied Materials','S','09-15','10-07',0,2],['gottheimer','MCD','McDonald’s','P','09-25','10-07',0,2],
+ ['doggett','JNJ','Johnson & Johnson','B','09-08','10-05',0,2],['doggett','IBM','IBM','B','09-10','10-05',0,2],['doggett','PPG','PPG Industries','B','09-11','10-05',0,2],['doggett','HD','Home Depot','B','09-17','10-05',0,2],
+ ['fong','T-BILL','Treasury Bill, Dec 10 2026','B','09-18','10-05',1,2],
+ ['fetterman','DELL','Dell International / EMC bond','B','09-15','',0,2],['fetterman','DELL','Dell International / EMC bond','B','09-16','',0,2],
+ ['pelosi','—','REOF XXX LLC (225 Bush St)','B','09-08','10-02',5,3],
+ ['pelosi','BE','Bloom Energy, 10,000 shares','B','07-24','08-21',6,3],['pelosi','BE','Bloom Energy, 100 calls $100 Jun 2027','B','07-24','08-21',6,3],['pelosi','BE','Bloom Energy, 5,000 shares','B','07-28','08-21',5,3],['pelosi','INTC','Intel, 10,000 shares','B','07-24','08-21',5,3],['pelosi','INTC','Intel, 50 calls $50 Jun 2027','B','07-24','08-21',4,3],
+ ['pelosi','INTC','Intel, 200 calls $50 Mar 2027','B','05-29','06-23',6,3],['pelosi','UBER','Uber, 200 calls $50 Mar 2027','B','05-29','06-23',5,3]
+].map(function(r,i){return {i:i,m:r[0],t:r[1],a:r[2],s:r[3],tr:r[4],ds:r[5],rg:r[6],src:r[7]}});
+var SRC=['','Trade With Congress','Glasshouse weekly, Oct 11 2026','Stock Alarm (House Clerk filings)'];
+function sideTxt(s){return s==='B'?'bought':s==='P'?'sold part':'sold'}
+function sideCls(s){return s==='B'?'side-b':'side-s'}
+function img(id,cls){return '<img src="'+PHOTO(id)+'" alt="" loading="lazy" referrerpolicy="no-referrer" data-id="'+id+'" class="'+(cls||'')+'">'}
+document.addEventListener('error',function(e){var t=e.target;if(t.tagName!=='IMG'||!t.dataset.id)return;if(!t.dataset.f){t.dataset.f=1;t.src=PHOTO2(t.dataset.id)}else{var p=t.parentNode,k=Object.keys(MEM).filter(function(k){return MEM[k][0]===t.dataset.id})[0],m=MEM[k];t.remove();if(p&&m){if(getComputedStyle(p).position==='static')p.style.position='relative';p.style.overflow='hidden';var d=document.createElement('div');d.className='init';d.style.background=m[5]==='D'?'#1a1aff':'#ff1a1a';d.style.color='#fff';d.style.fontSize=Math.max(7,Math.min(22,(p.clientWidth||40)/5))+'px';d.textContent=m[1].split(' ').map(function(w){return w[0]}).slice(0,2).join('');p.insertBefore(d,p.firstChild)}}},true);
+
+/* per-member stats */
+var ST={};Object.keys(MEM).forEach(function(k){ST[k]={lines:0,last:null,lastDs:'',tickers:{}}});
+F.forEach(function(f){var s=ST[f.m];s.lines++;var d=f.ds||f.tr;if(!s.last||d>s.lastDs){s.last=f;s.lastDs=d}if(f.t&&f.t!=='—'&&f.t!=='T-BILL')s.tickers[f.t]=(s.tickers[f.t]||0)+1});
+var TODAY=(function(){var n=new Date();return {m:n.getMonth()+1,d:n.getDate(),y:n.getFullYear()}})();
+function daysAgo(md){if(!md)return '';var p=md.split('-'),d=new Date(2026,+p[0]-1,+p[1]),n=new Date();return Math.max(0,Math.round((n-d)/864e5))+'d'}
+
+/* ================= PIXEL LOGO + SKYLINE ================= */
+function pix(cv,rows,pal){var x=cv.getContext('2d');cv.width=rows[0].length;cv.height=rows.length;rows.forEach(function(r,y){for(var i=0;i<r.length;i++){var c=pal[r[i]];if(c){x.fillStyle=c;x.fillRect(i,y,1,1)}}})}
+var DOME=['........w........','.......www.......','......wwwww......','.....wwbwbww.....','....wwwwwwwww....','...rrrrrrrrrrr...','..wwbwbwbwbwbww..','.wwwwwwwwwwwwwww.','wbwbwbwbwbwbwbwbw','wwwwwwwwwwwwwwwww','yyyyyyyyyyyyyyyyy'];
+pix($('#logoC'),DOME,{w:'#fff',b:'#1a1aff',r:'#ff1a1a',y:'#ffff1a'});
+(function(){var c=document.createElement('canvas');pix(c,DOME,{w:'#fff',b:'#1a1aff',r:'#ff1a1a',y:'#ffff1a'});var f=document.createElement('canvas');f.width=f.height=32;var x=f.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,32,32);x.imageSmoothingEnabled=false;x.drawImage(c,0,5,32,21);$('#fav').href=f.toDataURL()})();
+var sky=$('#sky'),sx=sky.getContext('2d'),WIN=[];
+function buildSky(){var W=Math.ceil(sky.getBoundingClientRect().width/3),H=19;sky.width=W;sky.height=H;WIN=[];
+  var cx=W/2|0;// capitol center
+  sx.fillStyle='#000';sx.fillRect(0,0,W,H);
+  // low buildings
+  sx.fillStyle='#fff';sx.fillRect(0,H-3,W,3);
+  function bld(x0,w,h){sx.fillStyle='#fff';sx.fillRect(x0,H-h,w,h);for(var yy=H-h+2;yy<H-3;yy+=2)for(var xx=x0+1;xx<x0+w-1;xx+=2)WIN.push([xx,yy])}
+  bld(4,12,6);bld(Math.max(20,cx-90),40,4);bld(cx+50,40,4);bld(W-18,12,6);bld(cx-140,4,14);bld(cx+136,4,14);
+  // left / right mini domes
+  [[10,8],[W-10,8]].forEach(function(d){sx.fillRect(d[0]-4,H-d[1],8,d[1]);sx.fillRect(d[0]-2,H-d[1]-2,4,2);sx.fillRect(d[0]-1,H-d[1]-4,2,2)});
+  // capitol
+  sx.fillStyle='#1a1aff';sx.fillRect(cx-48,H-11,96,8);sx.fillStyle='#fff';for(var k=-46;k<46;k+=3)sx.fillRect(cx+k,H-11,1,8);
+  sx.fillStyle='#ff1a1a';sx.fillRect(cx-22,H-15,44,4);sx.fillRect(cx-14,H-17,28,2);sx.fillStyle='#fff';sx.fillRect(cx-1,H-19,2,2);
+  sx.fillStyle='#ffff1a';sx.fillRect(cx-60,H-3,120,1);
+  sx.fillStyle='#fff';sx.fillRect(0,H-1,W,1)}
+var LIT={};function drawSky(){if(!WIN.length)return;var n=Object.keys(MEM).length;var R=Math.random;WIN.forEach(function(w,i){var on=LIT[i];sx.fillStyle=on?'#ffff1a':'#000';sx.fillRect(w[0],w[1],1,1)})}
+function seedLit(){LIT={};var n=Object.keys(MEM).length,picked=0,R=Math.random;while(picked<Math.min(n,WIN.length)){var i=(R()*WIN.length)|0;if(!LIT[i]){LIT[i]=1;picked++}}}
+buildSky();seedLit();drawSky();
+setInterval(function(){if(REDUCE||!WIN.length)return;var ks=Object.keys(LIT),off=ks[(Math.random()*ks.length)|0];delete LIT[off];var i;do{i=(Math.random()*WIN.length)|0}while(LIT[i]);LIT[i]=1;drawSky()},700);
+var rz;addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){buildSky();seedLit();drawSky()},150)});
+var newest=F.reduce(function(a,f){return f.ds>a?f.ds:a},'');
+$('#bandMid').innerHTML=Object.keys(MEM).length+' lit windows: members who reported a trade on this board';$('#bandR').textContent='Newest filing '+dfmt(newest);
+
+/* ================= BOARD PANELS ================= */
+var KEYS=Object.keys(MEM);
+(function(){var h='';for(var k=0;k<2;k++)KEYS.slice().sort(function(a,b){return MEM[a][6]-MEM[b][6]}).forEach(function(key){var m=MEM[key],l=ST[key].last;h+='<div class="mini"><div class="ph">'+img(m[0])+'</div><div class="nm">'+esc(m[1].split(' ').slice(-1)[0].replace(',',''))+'</div><div class="tk"><span class="y">$'+m[2]+'</span> '+(l?'<span class="'+sideCls(l.s)+'">'+esc(l.t)+' '+sideTxt(l.s)+'</span>':'')+'</div></div>'});$('#strip').innerHTML=h})();
+(function(){var L=F.slice().sort(function(a,b){return (b.ds||'').localeCompare(a.ds||'')}).slice(0,4);$('#latest').innerHTML=L.map(function(f){var m=MEM[f.m];return '<div class="fr"><span class="av">'+img(m[0])+'</span><span class="tx"><b>'+esc(m[1])+'</b><span class="'+sideCls(f.s)+'">'+sideTxt(f.s)+'</span> '+RANGES[f.rg]+'</span><span class="rt"><span class="y">'+esc(f.t)+'</span> '+dfmt(f.ds)+'</span></div>'}).join('')})();
+(function(){var by={};F.forEach(function(f){if(f.ds&&f.ds>='09-01')by[f.ds]=(by[f.ds]||0)+1});var ks=Object.keys(by).sort(),mx=Math.max.apply(0,ks.map(function(k){return by[k]}));$('#bars').innerHTML=ks.map(function(k){return '<i title="'+dfmt(k)+': '+by[k]+'" style="height:'+(by[k]/mx*100)+'%"></i>'}).join('');var el=$('#cnt'),N=F.length,st=performance.now();(function f(n){var p=Math.min(1,(n-st)/1200);el.textContent=Math.round(N*p).toLocaleString();if(p<1)requestAnimationFrame(f)})(st)})();
+var PEL=(function(){var w={};F.filter(function(f){return f.m==='pelosi'&&f.ds==='08-21'}).forEach(function(f){w[f.t]=(w[f.t]||0)+RMID[f.rg]});var tot=0;for(var k in w)tot+=w[k];return Object.keys(w).map(function(k){return [k,w[k]/tot]}).sort(function(a,b){return b[1]-a[1]})})();
+$('#pelMini').innerHTML='<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="av" style="width:40px;height:40px;overflow:hidden;display:block;background:#111">'+img('P000197')+'</span><span>Nancy Pelosi basket<br><span class="y">$PELOSI</span></span></div>'+PEL.map(function(p){return '<div class="row"><span>'+p[0]+'</span><span style="background:#222"><i style="width:'+(p[1]*100)+'%"></i></span><span>'+Math.round(p[1]*100)+'%</span></div>'}).join('')+'<div class="dim" style="font-size:17px">After her Aug 21 report (midpoints of reported ranges).</div>';
+var KV=[['amount_hi','50000'],['trade_day','Sep 23'],['filed_day','Oct 13'],['ticker','DVN'],['side','sell'],['doc_year','2026'],['doc_hash','SHA-256 of the PDF'],['member','H001082 Kevin Hern']];
+$('#kv').innerHTML=KV.map(function(r){return '<div><span>'+r[0]+'</span>'+esc(r[1])+'</div>'}).join('');
+$('#kv2').innerHTML=esc(JSON.stringify({member:'H001082',name:'Kevin Hern',chamber:'House',ticker:'DVN',asset:'Devon Energy Corporation Common Stock',side:'sell',amount_lo:50001,amount_hi:100000,trade_day:'2026-09-23',filed_day:'2026-10-13',doc_hash:'sha256(<ptr pdf>)',posted_slot:'<solana slot>'},null,2));
+
+/* ================= MEMBERS ================= */
+var WATCH=LS.get('watch',[]),MSORT='known',MCH='all';
+function members(){var q=$('#gq').value.trim().toLowerCase();var L=KEYS.filter(function(k){var m=MEM[k];return (MCH==='all'||m[3]===MCH)&&(MSORT!=='watch'||WATCH.indexOf(k)>=0)&&(!q||(m[1]+' '+m[2]+' '+Object.keys(ST[k].tickers).join(' ')).toLowerCase().indexOf(q)>=0)});
+  L.sort(function(a,b){return MSORT==='lines'?ST[b].lines-ST[a].lines:MSORT==='newest'?(ST[b].lastDs||'').localeCompare(ST[a].lastDs||''):MEM[a][6]-MEM[b][6]});
+  $('#mCount').textContent=KEYS.length;
+  $('#mg').innerHTML=L.length?L.map(function(k){var m=MEM[k],s=ST[k],l=s.last;return '<div class="mc" data-k="'+k+'"><div class="ph">'+img(m[0])+'<span class="pt" style="background:'+(m[5]==='D'?'#1a1aff':'#ff1a1a')+'">'+m[5]+'</span><span class="dd">'+daysAgo(s.lastDs)+'</span><span class="ch">'+(m[3]==='S'?'Senate':'House')+' · '+m[4]+'</span><button type="button" class="star'+(WATCH.indexOf(k)>=0?' on':'')+'" data-w="'+k+'" aria-label="Watch">★</button></div><div class="in"><b>'+esc(m[1])+'</b><span class="y">$'+m[2]+'</span><div class="last"><span class="y">'+esc(l.t)+'</span> <span class="'+sideCls(l.s)+'">'+sideTxt(l.s)+'</span></div><div class="amt">'+RANGES[l.rg]+'</div><div class="dim" style="font-size:16px">'+s.lines+' line'+(s.lines>1?'s':'')+' on board</div></div></div>'}).join(''):'<div class="dim" style="grid-column:1/-1;padding:20px">'+(MSORT==='watch'?'Star a member to add them to your watchlist.':'No members match.')+'</div>';
+  $$('#mg .star').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();var k=b.dataset.w,i=WATCH.indexOf(k);if(i>=0)WATCH.splice(i,1);else WATCH.push(k);LS.set('watch',WATCH);members();toast(i>=0?'Removed from watchlist':'Added '+MEM[k][1]+' to your watchlist')})});
+  $$('#mg .mc').forEach(function(c){c.addEventListener('click',function(){$('#fMem').value=c.dataset.k;FL.n=14;filings();$('#p400').scrollIntoView({behavior:'smooth'})})})}
+$$('#mTabs button').forEach(function(b){b.addEventListener('click',function(){MSORT=b.dataset.s;$$('#mTabs button').forEach(function(z){z.classList.toggle('on',z===b)});members()})});
+$$('#chTabs button').forEach(function(b){b.addEventListener('click',function(){MCH=b.dataset.c;$$('#chTabs button').forEach(function(z){z.classList.toggle('on',z===b)});members()})});
+$('#gq').addEventListener('input',function(){members();$('#fq').value=this.value;filings()});
+// top filers
+(function(){var L=KEYS.slice().sort(function(a,b){return ST[b].lines-ST[a].lines}).slice(0,4),cols=['#ff1a1a','#1a1aff','#ff1aff','#1aff5a'];$('#tf').innerHTML=L.map(function(k,i){var m=MEM[k],s=ST[k],tk=Object.keys(s.tickers).slice(0,4);return '<div class="pnl tf"><div class="hdr" style="background:'+cols[i]+';color:'+(i===3?'#000':'#fff')+'">'+tk.join(' · ')+'</div><div class="bd"><span class="av">'+img(m[0])+'</span><span><b>'+esc(m[1])+'</b><span class="y">$'+m[2]+'</span><br><span class="c">'+s.lines+'</span> trade lines · '+(m[3]==='S'?'Senate':'House')+'</span></div></div>'}).join('')})();
+members();
+
+/* ================= BASKETS ================= */
+function weights(list){var w={};list.forEach(function(f){if(!f.t||f.t==='—'||f.t==='T-BILL')return;w[f.t]=(w[f.t]||0)+RMID[f.rg]});var tot=0;for(var k in w)tot+=w[k];return Object.keys(w).map(function(k){return [k,w[k]/tot]}).sort(function(a,b){return b[1]-a[1]}).slice(0,5)}
+var BASK=[
+ {n:'Pelosi basket',tk:'$PELOSI',col:'#ffff1a',m:'pelosi',mode:'Follow',desc:'Her Aug 21 report: Bloom Energy and Intel, shares and calls.',w:weights(F.filter(function(f){return f.m==='pelosi'&&f.ds==='08-21'}))},
+ {n:'Hern exits',tk:'$HERN',col:'#ff1a1a',m:'hern',mode:'Fade',desc:'Kevin Hern sold energy, defense and health names in his Oct 13 report. Fade = buy what he sold.',w:weights(F.filter(function(f){return f.m==='hern'&&f.s!=='B'}))},
+ {n:'Senate buys',tk:'$SENATE',col:'#1affff',m:'boozman',mode:'Follow',desc:'Stocks senators on this board bought: Boozman’s Oct 21 report.',w:weights(F.filter(function(f){return MEM[f.m][3]==='S'&&f.s==='B'&&f.t!=='DELL'}))},
+ {n:'Salazar tech rotation',tk:'$SALAZAR',col:'#ff1aff',m:'salazar',mode:'Follow',desc:'What she added in September: Snowflake, Okta, Meta, Chevron.',w:weights(F.filter(function(f){return f.m==='salazar'&&f.s==='B'}))},
+ {n:'Jackson buys',tk:'$JACKSON',col:'#1aff5a',m:'jackson',mode:'Follow',desc:'Jonathan Jackson’s Sep 28 buys: Datadog, Estee Lauder, Guardant Health.',w:weights(F.filter(function(f){return f.m==='jackson'&&f.s==='B'}))},
+ {n:'Bipartisan Home Depot',tk:'$HD',col:'#ffffff',m:'doggett',mode:'Split',desc:'Doggett bought HD; Hern and Larsen sold it. Same stock, both sides of the aisle.',w:[['HD buy',1/3],['HD sell',2/3]]}];
+$('#baskets').innerHTML=BASK.map(function(b,i){var m=MEM[b.m];return '<div class="pnl bas"><div class="hd2" style="background:'+b.col+'"><span>'+esc(b.n)+'</span><span>'+b.mode+'</span></div><div class="bd"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span style="width:44px;height:44px;overflow:hidden;display:block;background:#111;flex:none">'+img(m[0])+'</span><span><span class="y">'+b.tk+'</span><br><span class="dim" style="font-size:17px">'+esc(b.desc)+'</span></span></div>'+b.w.map(function(p){return '<div class="row"><span>'+esc(p[0])+'</span><span style="background:#222"><i style="width:'+(p[1]*100)+'%;background:'+b.col+'"></i></span><span>'+Math.round(p[1]*100)+'%</span></div>'}).join('')+'<div class="cbx"><button type="button" data-b="'+i+'" data-v="copy">Follow</button><button type="button" data-b="'+i+'" data-v="fade">Fade</button></div></div></div>'}).join('');
+$$('#baskets .cbx button').forEach(function(b){b.addEventListener('click',function(){var B=BASK[+b.dataset.b];addCall({id:'b'+b.dataset.b,label:B.n+' ('+B.tk+')',dir:b.dataset.v,hz:30,cv:1});toast((b.dataset.v==='copy'?'Following ':'Fading ')+B.n+'. Baskets go on chain at launch.')})});
+
+/* ================= FILINGS TABLE ================= */
+var FL={side:'all',n:14};
+(function(){var S=$('#fMem');KEYS.slice().sort(function(a,b){return MEM[a][1].localeCompare(MEM[b][1])}).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=MEM[k][1];S.appendChild(o)})})();
+var CALLS=LS.get('calls',[]);
+function called(id){return CALLS.filter(function(c){return c.id===id})[0]}
+function filings(){var mem=$('#fMem').value,mr=+$('#fRange').value,q=$('#fq').value.trim().toLowerCase();var L=F.filter(function(f){return (FL.side==='all'||(FL.side==='B'?f.s==='B':f.s!=='B'))&&(!mem||f.m===mem)&&f.rg>=(mr>=1?mr-1:0)&&(!q||(f.t+' '+f.a+' '+MEM[f.m][1]).toLowerCase().indexOf(q)>=0)});
+  L.sort(function(a,b){return (WATCH.indexOf(b.m)>=0)-(WATCH.indexOf(a.m)>=0)||(b.ds||'00').localeCompare(a.ds||'00')||b.tr.localeCompare(a.tr)});var tot=L.length;L=L.slice(0,FL.n);$('#fMore').style.display=tot>FL.n?'':'none';
+  $('#tbl').innerHTML='<div class="trw h"><span>member</span><span>ticker</span><span class="c-as">asset</span><span>side</span><span class="c-amt">amount</span><span class="c-tr">traded</span><span class="c-ds">filed</span><span>call</span></div>'+(L.map(function(f){var m=MEM[f.m],c=called(String(f.i));return '<div class="trw"><span class="mem"><span class="av">'+img(m[0])+'</span><span>'+(WATCH.indexOf(f.m)>=0?'<span class="y">★</span> ':'')+esc(m[1])+' <span class="dim">'+m[5]+'-'+m[4].split('-')[0]+'</span></span></span><span class="y">'+esc(f.t)+'</span><span class="as c-as" title="'+esc(f.a)+'">'+esc(f.a)+'</span><span class="'+sideCls(f.s)+'">'+(f.s==='B'?'buy':f.s==='P'?'sell½':'sell')+'</span><span class="c-amt">'+RANGES[f.rg]+'</span><span class="c-tr dim">'+dfmt(f.tr)+'</span><span class="c-ds">'+dfmt(f.ds)+'</span><span class="cb">'+(c?'<button type="button" class="done" data-i="'+f.i+'">'+(c.dir==='copy'?'COPIED':'FADED')+'</button>':'<button type="button" data-i="'+f.i+'" data-v="copy">COPY</button><button type="button" class="f" data-i="'+f.i+'" data-v="fade">FADE</button>')+'</span></div>'}).join('')||'<div class="trw"><span class="dim" style="grid-column:1/-1">No lines match.</span></div>');
+  $$('#tbl .cb button').forEach(function(b){b.addEventListener('click',function(){var f=F[+b.dataset.i];if(b.classList.contains('done')){toast('Already called. See P600.');return}openCall(f,b.dataset.v)})})}
+$$('#fSide button').forEach(function(b){b.addEventListener('click',function(){FL.side=b.dataset.v;$$('#fSide button').forEach(function(z){z.classList.toggle('on',z===b)});filings()})});
+['#fMem','#fRange'].forEach(function(s){$(s).addEventListener('change',filings)});$('#fq').addEventListener('input',filings);$('#fMore').addEventListener('click',function(){FL.n+=20;filings()});
+filings();
+
+/* ================= CALL MODAL ================= */
+var CUR=null,CD={dir:'copy',hz:30,cv:2},HZM={7:1,30:1.5,90:2};
+function openCall(f,dir){CUR=f;CD.dir=dir;var m=MEM[f.m];$('#cmT').textContent='Call: '+m[1]+' · '+f.t;$('#cmLine').innerHTML='<span class="y">'+esc(m[1])+'</span> <span class="'+sideCls(f.s)+'">'+sideTxt(f.s)+'</span> <span class="y">'+esc(f.t)+'</span> '+RANGES[f.rg]+'<br><span class="dim">'+esc(f.a)+' · traded '+dfmt(f.tr)+' · filed '+dfmt(f.ds)+'</span>';syncCall();$('#cm').classList.add('on')}
+function syncCall(){[['#cDir','dir'],['#cHz','hz'],['#cCv','cv']].forEach(function(a){$$(a[0]+' button').forEach(function(b){b.classList.toggle('on',String(CD[a[1]])===b.dataset.v)})});if(!CUR)return;var dirTxt=CD.dir==='copy'?(CUR.s==='B'?'price goes up':'price goes down'):(CUR.s==='B'?'price goes down':'price goes up');$('#cmPrev').innerHTML='You win if <span class="y">'+esc(CUR.t)+'</span> '+dirTxt+' over '+CD.hz+' days from the filing.<br>Max points: <span class="g">'+Math.round(100*HZM[CD.hz]*CD.cv)+'</span> · max loss: <span class="r">'+(50*CD.cv)+'</span>'}
+[['#cDir','dir'],['#cHz','hz'],['#cCv','cv']].forEach(function(a){$$(a[0]+' button').forEach(function(b){b.addEventListener('click',function(){CD[a[1]]=a[1]==='dir'?b.dataset.v:+b.dataset.v;syncCall()})})});
+$$('[data-close]').forEach(function(b){b.addEventListener('click',function(){$('#cm').classList.remove('on')})});$('#cm').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on')});addEventListener('keydown',function(e){if(e.key==='Escape')$('#cm').classList.remove('on')});
+function addCall(c){if(called(c.id))return false;c.t=Date.now();CALLS.unshift(c);LS.set('calls',CALLS);renderMine();board();return true}
+$('#cmGo').addEventListener('click',function(){var f=CUR,m=MEM[f.m];addCall({id:String(f.i),label:m[1]+' '+sideTxt(f.s)+' '+f.t,dir:CD.dir,hz:CD.hz,cv:CD.cv});$('#cm').classList.remove('on');filings();toast((CD.dir==='copy'?'Copied ':'Faded ')+m[1]+' on '+f.t+'. Settles at launch.')});
+
+/* ================= CALLERS BOARD ================= */
+var LB=[['capitolwatcher',41,2860],['fadethefloor',37,2410],['ptrsniper',29,2190],['stockactchad',33,1940],['clerkpdfreader',22,1610],['bipartisanbag',18,1330],['efdmaxi',25,1180],['filingday',14,960]];
+function board(){var me={n:'you',c:CALLS.length,p:0,me:1},rows=LB.map(function(r){return {n:r[0],c:r[1],p:r[2]}}).concat([me]).sort(function(a,b){return b.p-a.p||b.c-a.c});
+  $('#lb').innerHTML=rows.map(function(r,i){return '<div class="r2'+(r.me?' me':'')+'"><span class="'+(i<3?'y':'')+'">'+(i+1)+'</span><span>'+(r.me?'<span class="c">you</span> (this device)':'@'+esc(r.n))+'</span><span>'+r.c+'</span><span class="'+(r.me?'dim':'g')+'">'+(r.me?'at launch':r.p.toLocaleString())+'</span></div>'}).join('')}
+function renderMine(){$('#myN').textContent=CALLS.length+' call'+(CALLS.length===1?'':'s');$('#myCalls').innerHTML=CALLS.length?CALLS.map(function(c){return '<li><span><span class="'+(c.dir==='copy'?'g':'m')+'">'+(c.dir==='copy'?'COPY':'FADE')+'</span> '+esc(c.label)+'</span><span class="dim">'+c.hz+'d · ×'+c.cv+' · pending</span></li>'}).join(''):'<li class="dim">No calls yet. Tap COPY or FADE on any filing.</li>'}
+$('#clrCalls').addEventListener('click',function(){CALLS=[];LS.set('calls',CALLS);renderMine();board();filings();toast('Calls cleared')});
+board();renderMine();
+
+/* ================= LINKS / NAV ================= */
+function wire(a,url,msg){if(!a)return;if(url){a.href=url;a.target='_blank';a.rel='noopener noreferrer'}else a.addEventListener('click',function(e){e.preventDefault();toast(msg)})}
+['#xTop','#xA','#xFoot','#xSide'].forEach(function(s){wire($(s),CONFIG.xUrl,'Our X drops soon. The launch is posted there.')});wire($('#buyA'),CONFIG.buyUrl,'$COALITION launches soon. The CA is posted on X.');
+if(CONFIG.ca){$('#caT').textContent=CONFIG.ca;$('#caT2').textContent=CONFIG.ca}
+['#caC','#caC2'].forEach(function(s){$(s).addEventListener('click',function(){if(!CONFIG.ca){toast('Not yet. Watch our X.');return}try{navigator.clipboard.writeText(CONFIG.ca);toast('Copied')}catch(e){toast(CONFIG.ca)}})});
+var PAGES=['p100','p200','p300','p400','p500','p600','p700'];addEventListener('scroll',function(){var y=scrollY+120,cur='p100';PAGES.forEach(function(id){var el=document.getElementById(id);if(el&&el.getBoundingClientRect().top+scrollY<=y)cur=id});$$('.side .pg').forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+cur)});$('.band span b').textContent=cur.toUpperCase()},{passive:true});
+})();
+</script>
+</body>
+</html>
